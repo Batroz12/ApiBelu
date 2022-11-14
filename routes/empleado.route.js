@@ -30,17 +30,6 @@ router.post('/', (req, res) => {
   });
 });
 
-// router.put('/:id', (req,res,) => {
-//   const { id } = req.params
-//   const body = req.body;
-//   const empleado = servicio.update(id,body)
-//   res.status(200).json({
-//     mensaje: 'datos del empleado actualizado',
-//     empleado
-//   });
-
-// });
-
 router.patch('/:id', (req, res) => {
   const { id } = req.params
   const body = req.body;
