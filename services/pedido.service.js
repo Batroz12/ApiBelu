@@ -1,5 +1,6 @@
 const faker = require("faker")
 const crypto = require("crypto");
+const boom = require("@hapi/boom");
 
 class PedidoService{
   constructor(){
@@ -14,57 +15,55 @@ class PedidoService{
         cliente: faker.name.firstName(),
         estado: "Por entregar",
         condicion: "Delivery",
-        PrecioTotal: faker.datatype.number(),
+        precioTotal: faker.datatype.number(),
+        estaBloqueado: Math.random() < 0.75
       });
     }
   }
 
-  create(data) {
-    const crearNuevoPedido ={
-      id : crypto.randomUUID(),
-      ...data
-    }
-    this.empleado.push(crearNuevoPedido);
-    return crearNuevoPedido;
+  async create(Pedido){
+    Pedido.id = crypto.randomUUID();
+    this.pedido.push(Pedido)
   }
-
-  update(id, changes) {
-    const posicion = this.pedido.findIndex(pedido => {
-      return pedido.id===id;
-    });
-    if (posicion === -1) {
-      throw new Error("Pedido no encontrado");
-    }
-    const pedido = this.pedido[posicion];
-    this.pedido[posicion]={
-      ...pedido,
-      ...changes
-    }
-    return this.pedido[posicion];
+  async find(){
+    return this.pedido;
   }
-
-  delete(id) {
-    const posicion = this.pedido.findIndex(pedido => {
-      return pedido.id===id;
+  async finfOne(id){
+    const Pedido = this.pedido.find((Pedido) =>{
+      return Pedido.id === id;
     });
+    if (!Pedido) {
+      throw boom.notFound("Pedido no encontrado");
+    }
+    if (!Pedido.estaBloqueado) {
+      throw boom.forbidden("Pedido bloqueado");
+    }
+    return Pedido;
+  }
+  async update(id, changes){
+    const index = this.pedido.findIndex(pedido =>{
+      return pedido.id === id;
+    });
+    if(index===-1){
+      throw new Error('pedido no encontrado');
+    }
+    const pedido = this.pedido[index];
+      this.pedido[index] = {
+        ...pedido,
+        ...changes
+    };
+    return this.pedido[index];
+  }
+  async delete(id){
+    const posicion = this.pedido.findIndex(item => item.id == id);
     if (posicion === -1) {
-      throw new Error("Pedido no encontrado");
+      throw boom.notFound("Pedido no encontrado");
     }
     this.pedido.splice(posicion, 1);
     return {
       mensaje: "Pedido eliminado",
       id
     };
-  }
-
-  find() {
-    return this.pedido;
-  }
-
-  findby(id) {
-    return this.pedido.find(pedido => {
-      return pedido.id === id;
-    });
   }
 }
 

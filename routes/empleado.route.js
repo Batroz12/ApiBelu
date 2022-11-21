@@ -1,64 +1,67 @@
 const { json } = require("express");
 const express = require("express");
+const controlValidar = require('../middlewares/validar.middleware');
+const {crearEmpleadoSchema,actualizarEmpleadoSchema,findByEmpleadoSchema} = require("../schemas/empleado.schema");
 
 const EmpleadoService = require('../services/empleado.service')
-const servicio = new EmpleadoService();
+const service = new EmpleadoService();
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  const empleado = servicio.find();
-  res.status(200).json(empleado);
-});
+router.get('/',async (req, res, next)=>{
+  try {
+    const Empleado = await service.find();
+    res.status(200).json(Empleado);
+    } catch (error) {
+      next(error)
+    }
+  });
 
-router.get('/:id', (req, res) => {
-  const { id } = req.params
-  const empleado = servicio.findby(id);
-  if (empleado === undefined){
-    res.status(404).json({
-      message: 'Empleado not found',
-      id
-    });
+router.get('/:id', controlValidar(findByEmpleadoSchema, 'params'), async (req,res, next)=>{
+  try {
+    const { id } = req.params;
+    const Empleado = await service.finfOne(id);
+    res.json(Empleado);
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json(empleado)
-} )
-router.post('/', (req, res) => {
-  const body = req.body;
-  const crearNuevoEmpleado = servicio.create(body);
-  res.status(201).json({
-    mensaje: 'Empleado creado exitosamente',
-    datos: crearNuevoEmpleado
-  });
 });
 
-router.patch('/:id', (req, res) => {
-  const { id } = req.params
-  const body = req.body;
-  servicio.updateParcial(id,body)
-  res.status(200).json({
-    mensaje: 'datos del empleado parcialmente actualizado',
-    datos: servicio.findby(id)
-  });
+router.post('/', controlValidar(crearEmpleadoSchema, 'body'), async (req, res, next)=>{
+  try {
+    const body = req.body;
+    const empleado = await service.create(body);
+    res.status(201).json({
+      mensaje: 'registro exitoso',
+      datos: empleado
+    });
+  } catch (error) {
+    next(error)
+  }
+});
+router.patch('/:id',controlValidar(findByEmpleadoSchema, 'params'), controlValidar(actualizarEmpleadoSchema, 'body'), async (req,res, next) => {
+  try {
+    const { id }= req.params;
+      const body = req.body;
+      const Empleado =await service.update(id,body);
+      res.status(200).json({
+        mensaje: 'Empleado actualizado',
+        Empleado
+      });
+  } catch (error) {
+    next(error)
+  }
 });
 
-router.delete('/:id',(req,res)=> {
-  const {id} = req.params;
-  servicio.delete(id);
-  res.json({
-  mensaje :('registro eliminado'),
-  });
-});
-
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const empleado = servicio.findBy(id);
-  if (id == '10'){
-    res.status(404).json(
-      {
-        mensaje: 'no se encuentra el empleado solicitado'
-      }
-    );
-  } else {
-    res.status(200).json(empleado);
+router.delete('/:id',controlValidar(findByEmpleadoSchema, 'params'), async (req,res, next)=> {
+  try {
+    const {id} = req.params;
+    const EmpleadoEliminado = await service.delete(id);
+    res.json({
+    mensaje :'Empleado eliminado',
+    EmpleadoEliminado
+    });
+  } catch (error) {
+    next(error)
   }
 });
 module.exports = router;

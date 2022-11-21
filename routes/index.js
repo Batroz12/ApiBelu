@@ -14,7 +14,7 @@ function rutas(app) {
   router.use('/empleados', empleadoRouter);
   router.use('/pedidos', pedidoRouter);
   router.use('/productos', productoRouter);
-  router.use('/usuario', usuarioRouter);
+  router.use('/usuarios', usuarioRouter);
 
 }
  

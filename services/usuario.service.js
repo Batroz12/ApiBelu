@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const faker = require('faker');
+const boom = require("@hapi/boom");
 
 class UsuarioService{
 
@@ -11,30 +12,32 @@ generate(limite){
   for (let index = 0;index<limite;index++){
     this.Usuarios.push({
       id:crypto.randomUUID(),
-      usuario:'usuario'+index,
-      contraseña:faker.internet.password(),
+      Correo: faker.internet.email(),
+      Password:faker.internet.password(),
+      estaBloqueado: Math.random() < 0.75
     });
   }
 }
-
-  create(data){
-    const nuevoUsuario = {
-      id: crypto.randomUUID(),
-      ...data
-    };
-    this.Usuarios.push(nuevoUsuario);
-    return nuevoUsuario;
-
+  async create(Usuario){
+    Usuario.id = crypto.randomUUID();
+    this.Usuarios.push(Usuario)
   }
-  find(){
+  async find(){
     return this.Usuarios;
   }
-  finfOne(id){
-    return this.Usuarios.find(usuario =>{
-      return usuario.id === id;
+  async finfOne(id){
+    const Usuario = this.Usuarios.find((Usuario) =>{
+      return Usuario.id === id;
     });
+    if (!Usuario) {
+      throw boom.notFound("Usuario no encontrado");
+    }
+    if (!Usuario.estaBloqueado) {
+      throw boom.forbidden("Usuario bloqueado");
+    }
+    return Usuario;
   }
-  update(id, changes){
+  async update(id, changes){
     const index = this.Usuarios.findIndex(usuario =>{
       return usuario.id === id;
     });
@@ -48,18 +51,16 @@ generate(limite){
     };
     return this.Usuarios[index];
   }
-  delete(id){
-    const index = this.Usuarios.findIndex(usuario =>{
-      return usuario.id === id;
-    });
-    if(index===-1){
-      throw new Error('usuario no encontrado');
+  async delete(id){
+    const posicion = this.Usuarios.findIndex(item => item.id == id);
+    if (posicion === -1) {
+      throw boom.notFound("Usuario no encontrado");
     }
-    this.Usuarios.splice(index,1);
-    return {id};
-
+    this.Usuarios.splice(posicion, 1);
+    return {
+      mensaje: "Usuario eliminado",
+      id
+    };
   }
-
 }
 module.exports = UsuarioService;
-

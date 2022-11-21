@@ -1,5 +1,6 @@
 const faker = require("faker")
 const crypto = require("crypto");
+const boom = require("@hapi/boom");
 
 class EmpleadoService{
   constructor(){
@@ -15,56 +16,54 @@ class EmpleadoService{
         apellido: faker.name.lastName(),
         edad: Math.floor(Math.random() * (30 - 1)) + 1,
         usuario: faker.internet.email(),
+        estaBloqueado: Math.random() < 0.75
       });
     }
   }
 
-  create(data) {
-    const crearNuevoEmpleado ={
-      id : crypto.randomUUID(),
-      ...data
-    }
-    this.empleado.push(crearNuevoEmpleado);
-    return crearNuevoEmpleado;
+  async create(Empleado){
+    Empleado.id = crypto.randomUUID();
+    this.empleado.push(Empleado)
   }
-
-  update(id, changes) {
-    const posicion = this.empleado.findIndex(empleado => {
-      return empleado.id===id;
-    });
-    if (posicion === -1) {
-      throw new Error("Empleado no encontrado");
-    }
-    const empleado = this.empleado[posicion];
-    this.empleado[posicion]={
-      ...empleado,
-      ...changes
-    }
-    return this.empleado[posicion];
+  async find(){
+    return this.empleado;
   }
-
-  delete(id) {
-    const posicion = this.empleado.findIndex(empleado => {
-      return empleado.id===id;
+  async finfOne(id){
+    const Empleado = this.empleado.find((Empleado) =>{
+      return Empleado.id === id;
     });
+    if (!Empleado) {
+      throw boom.notFound("Empleado no encontrado");
+    }
+    if (!Empleado.estaBloqueado) {
+      throw boom.forbidden("Empleado bloqueado");
+    }
+    return Empleado;
+  }
+  async update(id, changes){
+    const index = this.empleado.findIndex(empleado =>{
+      return empleado.id === id;
+    });
+    if(index===-1){
+      throw new Error('Empleado no encontrado');
+    }
+    const empleado = this.empleado[index];
+      this.empleado[index] = {
+        ...empleado,
+        ...changes
+    };
+    return this.empleado[index];
+  }
+  async delete(id){
+    const posicion = this.empleado.findIndex(item => item.id == id);
     if (posicion === -1) {
-      throw new Error("Empleado no encontrado");
+      throw boom.notFound("Empleado no encontrado");
     }
     this.empleado.splice(posicion, 1);
     return {
-      mensaje: "empleado eliminado",
+      mensaje: "Empleado eliminado",
       id
     };
-  }
-
-  find() {
-    return this.empleado;
-  }
-
-  findby(id) {
-    return this.empleado.find(empleado => {
-      return empleado.id === id;
-    });
   }
 }
 
