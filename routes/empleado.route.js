@@ -26,13 +26,13 @@ router.get('/:id', controlValidar(findByEmpleadoSchema, 'params'), async (req,re
   }
 });
 
-router.post('/', controlValidar(crearEmpleadoSchema, 'body'), async (req, res, next)=>{
+router.post('/', controlValidar(crearEmpleadoSchema, 'body'),async (req, res, next)=>{
   try {
     const body = req.body;
-    const empleado = await service.create(body);
+    const crearNuevoEmpleado = await service.create(body);
     res.status(201).json({
       mensaje: 'registro exitoso',
-      datos: empleado
+      datos: crearNuevoEmpleado
     });
   } catch (error) {
     next(error)

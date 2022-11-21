@@ -21,9 +21,13 @@ class EmpleadoService{
     }
   }
 
-  async create(Empleado){
-    Empleado.id = crypto.randomUUID();
-    this.empleado.push(Empleado)
+  async create(data) {
+    const crearNuevoEmpleado ={
+      id : crypto.randomUUID(),
+      ...data
+    }
+    this.empleado.push(crearNuevoEmpleado);
+    return crearNuevoEmpleado;
   }
   async find(){
     return this.empleado;

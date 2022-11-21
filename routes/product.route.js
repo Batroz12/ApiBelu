@@ -25,12 +25,16 @@ router.get('/:id', controlValidar(findByProductoSchema, 'params'), async (req,re
 });
 
 router.post('/', controlValidar(crearProductoSchema, 'body'), async (req, res, next)=>{
+  try {
     const body = req.body;
     const NuevoProducto = await service.create(body);
     res.status(201).json({
       mensaje: 'registro exitoso',
       datos: NuevoProducto
     });
+  } catch (error) {
+    next(error)
+  }
 });
 router.patch('/:id',controlValidar(findByProductoSchema, 'params'), controlValidar(actualizarProductoSchema, 'body'), async (req,res, next) => {
   try {
