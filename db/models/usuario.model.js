@@ -1,45 +1,36 @@
 const { Model, Sequelize, DataTypes } = require('sequelize');
 
-const EMPLEADO_TABLE = 'empleados';
+const USUARIO_TABLE = 'clientes';
 
-const EmpleadoSchema = {
+const UsuarioSchema = {
   id: {
     primaryKey: true,
     type: DataTypes.UUID
   },
-  nombre: {
+  correo: {
     allowNull: false,
     type: DataTypes.STRING,
     unique: true
   },
-  apellido: {
+  password: {
     allowNull: false,
     type: DataTypes.STRING
-  },
-  edad: {
-    allowNull: false,
-    type: DataTypes.STRING
-  },
-  usuario: {
-    allowNull: true,
-    type: DataTypes.STRING,
-    unique: true
   }
 };
 
-class Empleado extends Model {
+class Usuario extends Model {
   static associate(models){
     this.hasMany(models.venta, {
-      foreignKey: 'empleadoid'
+      foreignKey: 'usuarioId'
     });
   }
   static config(sequelize){
     return {
       sequelize,
-      tableName: EMPLEADO_TABLE,
-      modelName: 'Empleado',
+      tableName: USUARIO_TABLE,
+      modelName: 'Usuario',
       timestamps: false
     };
   }
 }
-module.exports= { EMPLEADO_TABLE, EmpleadoSchema, Empleado }
+module.exports= { USUARIO_TABLE, UsuarioSchema, Usuario }

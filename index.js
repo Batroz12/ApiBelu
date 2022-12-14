@@ -1,19 +1,23 @@
 const express = require('express'); 
 const rutas = require('./routes');
+const cors = require('cors');
+const app = express();
 
 const { manejarError, mostrarError, boomManejarError } = require('./middlewares/error.middleware');
 
-const aplicacion = express();
+
+app.use(cors());
 
 const port = 3500;
-aplicacion.use(express.json());
+app.use(express.json());
 
-rutas(aplicacion);
-aplicacion.use(mostrarError);
-aplicacion.use(boomManejarError);
-aplicacion.use(manejarError);
+rutas(app);
+app.use(mostrarError);
+app.use(boomManejarError);
+app.use(manejarError);
 
-aplicacion.listen(port, () =>{
+
+app.listen(port, () =>{
   console.log("puerto activao " + port);
 });
 

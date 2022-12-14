@@ -4,6 +4,9 @@ const empleadoRouter = require('./empleado.route');
 const pedidoRouter = require('./pedido.route');
 const productoRouter = require('./product.route');
 const usuarioRouter = require('./usuario.route');
+const detalleProductoRouter = require('./detalleProducto.route');
+const detalleVentaRouter = require('./detalleVenta.route');
+const ventaRouter = require('./venta.route');
 
 function rutas(app) {
   app.get('/',(req, res)=> {
@@ -15,6 +18,9 @@ function rutas(app) {
   router.use('/pedidos', pedidoRouter);
   router.use('/productos', productoRouter);
   router.use('/usuarios', usuarioRouter);
+  router.use('/venta', ventaRouter);
+  router.use('/detVenta', detalleVentaRouter);
+  router.use('/detProducto', detalleProductoRouter);
 
 }
  
